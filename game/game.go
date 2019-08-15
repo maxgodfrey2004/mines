@@ -14,12 +14,51 @@
 
 package game
 
-type GridType []string
+import (
+	"math/rand"
+)
 
-type game struct {
-	grid GridType
+const (
+	// ChanceOfMine represents the chance (in decimal form) that any given grid cell will
+	// contain a mine.
+	ChanceOfMine = 0.2
+
+	// MineRune represents a mine cell in char form.
+	MineRune = 'M'
+	// EmptyRune represents an empty cell in char form.
+	EmptyRune = 'E'
+)
+
+type GridType [][]rune
+type GridRow []rune
+
+// makeGrid returns a GridType object containing cells being either empty or containing a mine.
+func makeGrid(width, height int) GridType {
+	grid := make(GridType, height)
+	for i := 0; i < height; i++ {
+		grid[i] = make(GridRow, width)
+		for j := 0; j < width; j++ {
+			if rand.Float64() < ChanceOfMine {
+				grid[i][j] = MineRune
+			} else {
+				grid[i][j] = EmptyRune
+			}
+		}
+	}
+	return grid
 }
 
-func New() (g game) {
+// Game represents an instance of the Minesweeper game.
+type game struct {
+	grid   GridType
+	Width  int
+	Height int
+}
+
+// New returns a new instance of the type game.
+func New(width, height int) (g game) {
+	g.grid = makeGrid(width, height)
+	g.Width = width
+	g.Height = height
 	return
 }
