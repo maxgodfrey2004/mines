@@ -41,6 +41,12 @@ type keypress struct {
 	Key       termbox.Key
 }
 
+// point represents a coordinate on the grid.
+type point struct {
+	Row    int // The row at which the point is located.
+	Column int // The column at which the point is located.
+}
+
 // listenForEvents listens for keypresses. Note that this is a blocking function so it must be
 // called as a goroutine.
 func (g *game) listenForEvents() {
@@ -82,12 +88,27 @@ func (g *game) listenForEvents() {
 	}
 }
 
+// moveCursor shifts the selected grid cell by a specified row and column delta. Note that the
+// cursor is only ever shifted if the new specified location is within the grid. If it is not,
+// the the cursor remains in the same place.
+func (g *game) moveCursor(rowDelta, columnDelta int) {
+	newRow := g.selectedIndex.Row + rowDelta
+	newColumn := g.selectedIndex.Column + columnDelta
+
+	if newRow >= 0 && newRow < g.Height && newColumn >= 0 && newColumn < g.Width {
+		g.selectedIndex.Row = newRow
+		g.selectedIndex.Column = newColumn
+		g.Render()
+	}
+}
+
 // Run starts the game.
 func (g *game) Run() {
 	if err := termbox.Init(); err != nil {
 		panic(err)
 	}
 	g.keypressChan = make(chan keypress)
+	g.selectedIndex = point{Row: 0, Column: 0}
 
 	g.Render()
 	go g.listenForEvents()
@@ -97,13 +118,13 @@ func (g *game) Run() {
 		case ev := <-g.keypressChan:
 			switch ev.EventType {
 			case MoveUp:
-				// TODO
+				g.moveCursor(-1, 0)
 			case MoveDown:
-				// TODO
+				g.moveCursor(1, 0)
 			case MoveLeft:
-				// TODO
+				g.moveCursor(0, -1)
 			case MoveRight:
-				// TODO
+				g.moveCursor(0, 1)
 			case Quit:
 				termbox.Close()
 				return

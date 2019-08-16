@@ -29,8 +29,8 @@ const (
 	EmptyRune = 'E'
 )
 
-type GridType [][]rune
 type GridRow []rune
+type GridType []GridRow
 
 // makeGrid returns a GridType object containing cells being either empty or containing a mine.
 func makeGrid(width, height int) GridType {
@@ -50,10 +50,11 @@ func makeGrid(width, height int) GridType {
 
 // Game represents an instance of the Minesweeper game.
 type game struct {
-	grid         GridType
-	keypressChan chan keypress
-	Width        int
-	Height       int
+	grid          GridType      // The board on which the game is being played.
+	selectedIndex point         // The current selected point in the grid.
+	keypressChan  chan keypress // Incoming keyboard events for individual processing.
+	Width         int           // The width of the game board.
+	Height        int           // The height of the game board.
 }
 
 // New returns a new instance of the type game.
