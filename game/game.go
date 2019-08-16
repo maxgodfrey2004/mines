@@ -50,9 +50,10 @@ func makeGrid(width, height int) GridType {
 
 // Game represents an instance of the Minesweeper game.
 type game struct {
-	grid   GridType
-	Width  int
-	Height int
+	grid         GridType
+	keypressChan chan keypress
+	Width        int
+	Height       int
 }
 
 // New returns a new instance of the type game.
