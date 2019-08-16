@@ -43,14 +43,8 @@ func (g *game) Render() {
 
 	for i, rowString := range g.grid {
 		renderString(0, i, rowString)
-
-		termbox.SetCursor(g.selectedIndex.Column, g.selectedIndex.Row)
-
-		// for j := 0; j < len(rowString); j++ {
-		// 	fgColor := termbox.ColorDefault
-		// 	bgColor := termbox.ColorDefault
-		// }
 	}
 
+	termbox.SetCursor(g.selectedIndex.Column, g.selectedIndex.Row)
 	termbox.Flush()
 }
