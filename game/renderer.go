@@ -47,11 +47,3 @@ func (g *game) Render() {
 
 	termbox.Flush()
 }
-
-// Run starts the game.
-func (g *game) Run() {
-	if err := termbox.Init(); err != nil {
-		panic(err)
-	}
-	g.Render()
-}
