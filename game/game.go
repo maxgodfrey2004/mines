@@ -16,12 +16,13 @@ package game
 
 import (
 	"math/rand"
+	"time"
 )
 
 const (
-	// ChanceOfMine represents the chance (in decimal form) that any given grid cell will
-	// contain a mine.
-	ChanceOfMine = 0.2
+	// ChanceOfMine represents the chance (as a percentage) that any given grid cell will
+	// contain a mine. Note that this value is approximate.
+	ChanceOfMine = 20
 
 	// MineRune represents a mine cell in char form.
 	MineRune = 'M'
@@ -29,7 +30,10 @@ const (
 	EmptyRune = 'E'
 )
 
+// GridRow represents a row of the minesweeper grid.
 type GridRow []rune
+
+// GridType represents the minesweeper grid.
 type GridType []GridRow
 
 // makeGrid returns a GridType object containing cells being either empty or containing a mine.
@@ -38,13 +42,23 @@ func makeGrid(width, height int) GridType {
 	for i := 0; i < height; i++ {
 		grid[i] = make(GridRow, width)
 		for j := 0; j < width; j++ {
-			if rand.Float64() < ChanceOfMine {
-				grid[i][j] = MineRune
-			} else {
-				grid[i][j] = EmptyRune
-			}
+			grid[i][j] = EmptyRune
 		}
 	}
+
+	rand.Seed(time.Now().UTC().UnixNano())
+	occupiedCells := 0
+	var requiredCells int = (width * height) / (100 / ChanceOfMine)
+
+	for occupiedCells < requiredCells {
+		randRow := rand.Intn(height)
+		randColumn := rand.Intn(width)
+		if grid[randRow][randColumn] == EmptyRune {
+			grid[randRow][randColumn] = MineRune
+			occupiedCells++
+		}
+	}
+
 	return grid
 }
 
