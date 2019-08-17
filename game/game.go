@@ -36,6 +36,19 @@ type GridRow []rune
 // GridType represents the minesweeper grid.
 type GridType []GridRow
 
+var (
+	adjacentDeltas = []point{
+		{Row: -1, Column: -1},
+		{Row: -1, Column: 0},
+		{Row: -1, Column: 1},
+		{Row: 0, Column: -1},
+		{Row: 0, Column: 1},
+		{Row: 1, Column: -1},
+		{Row: 1, Column: 0},
+		{Row: 1, Column: 1},
+	}
+)
+
 // makeGrid returns a GridType object containing cells being either empty or containing a mine.
 func makeGrid(width, height int) GridType {
 	grid := make(GridType, height)
@@ -56,6 +69,25 @@ func makeGrid(width, height int) GridType {
 		if grid[randRow][randColumn] == EmptyRune {
 			grid[randRow][randColumn] = MineRune
 			occupiedCells++
+		}
+	}
+
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			if grid[i][j] != EmptyRune {
+				continue
+			}
+			surroundingMines := 0
+			for _, delta := range adjacentDeltas {
+				newRow := i + delta.Row
+				newColumn := j + delta.Column
+				if newRow >= 0 && newRow < height && newColumn >= 0 && newColumn < width {
+					if grid[newRow][newColumn] == MineRune {
+						surroundingMines++
+					}
+				}
+			}
+			grid[i][j] = rune(int('0') + surroundingMines)
 		}
 	}
 
