@@ -18,33 +18,46 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// Various color constants to make rendering easier.
+const (
+	bgColorDefault = termbox.ColorBlack
+	fgColorDefault = termbox.ColorWhite
+)
+
 // renderString draws a specified string on the terminal, starting at a given x and y coordinate.
 // The parameter `str` represents the string to be drawn.
 func renderString(x, y int, str []rune) {
 	for i := 0; i < len(str); i++ {
-		termbox.SetCell(x+i, y, rune(str[i]), termbox.ColorDefault, termbox.ColorDefault)
+		termbox.SetCell(x+i, y, str[i], fgColorDefault, bgColorDefault)
 	}
 }
 
 // Render draws the game's grid on the terminal screen.
 func (g *game) Render() {
-	if err := termbox.Clear(termbox.ColorDefault, termbox.ColorDefault); err != nil {
+	if err := termbox.Clear(fgColorDefault, bgColorDefault); err != nil {
 		panic(err)
 	}
 
 	// Make sure that the terminal's back buffer is large enough for us to draw
 	// the full grid.
 	tWidth, tHeight := termbox.Size()
-
 	if g.Width > tWidth || g.Height > tHeight {
 		renderString(0, 0, []rune("Terminal is too small. Please resize."))
 		return
 	}
 
-	for i, rowString := range g.grid {
-		renderString(0, i, rowString)
+	for i := 0; i < g.Height; i++ {
+		for j := 0; j < g.Width; j++ {
+			fgColor := fgColorDefault
+			bgColor := bgColorDefault
+			if i == g.selectedIndex.Row && j == g.selectedIndex.Column {
+				// Invert the cell's colors to indicate to the user that the current
+				// cell has been selected.
+				fgColor, bgColor = bgColor, fgColor
+			}
+			termbox.SetCell(j, i, g.grid[i][j], fgColor, bgColor)
+		}
 	}
 
-	termbox.SetCursor(g.selectedIndex.Column, g.selectedIndex.Row)
 	termbox.Flush()
 }
