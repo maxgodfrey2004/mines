@@ -115,6 +115,9 @@ func (g *game) selectAllMines() {
 // selectCell selects a given row and column of the grid. It then reveals all surrounding cells
 // according to the rules of the game. If the current cell is a mine, it is game over!
 func (g *game) selectCell(row, column int) {
+	if g.GameOver {
+		return
+	}
 	if g.grid[row][column] == rune('0') {
 		g.showCell(row, column)
 		g.selectFlood(row, column)
@@ -126,6 +129,7 @@ func (g *game) selectCell(row, column int) {
 	if int(g.grid[row][column]) >= int('1') && int(g.grid[row][column]) <= int('9') {
 		g.showCell(row, column)
 	}
+	g.Render()
 }
 
 // selectFlood selects every cell surrounding an empty cell. This function is designed to be called
@@ -143,7 +147,7 @@ func (g *game) selectFlood(row, column int) {
 				Row:    currentPoint.Row + deltaPoint.Row,
 				Column: currentPoint.Column + deltaPoint.Column,
 			}
-			if newPoint.Row >= 0 && newPoint.Row < g.Height && newPoint.Column >= 0 && newPoint.Column < g.Width {
+			if g.inGrid(newPoint.Row, newPoint.Column) {
 				if g.userGrid[newPoint.Row][newPoint.Column] == UncheckedRuneUser {
 					if g.grid[newPoint.Row][newPoint.Column] != MineRune {
 						g.showCell(newPoint.Row, newPoint.Column)
@@ -194,10 +198,7 @@ func (g *game) Run() {
 				termbox.Close()
 				return
 			case Select:
-				if !g.GameOver {
-					g.selectCell(g.selectedIndex.Row, g.selectedIndex.Column)
-					g.Render()
-				}
+				g.selectCell(g.selectedIndex.Row, g.selectedIndex.Column)
 			}
 		}
 	}

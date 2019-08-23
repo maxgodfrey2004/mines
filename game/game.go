@@ -54,6 +54,11 @@ var (
 	}
 )
 
+// inGrid returns whether or not a given location is within the game grid.
+func (g *game) inGrid(row, column int) bool {
+	return row >= 0 && row < g.Height && column >= 0 && column < g.Width
+}
+
 // makeGrid propogates the game grid with mines, and precomputes the amount of surrounding mines
 // for every cell that does not contain a mine.
 func (g *game) makeGrid() {
@@ -79,24 +84,7 @@ func (g *game) makeGrid() {
 		}
 	}
 
-	for i := 0; i < g.Height; i++ {
-		for j := 0; j < g.Width; j++ {
-			if g.grid[i][j] != EmptyRune {
-				continue
-			}
-			surroundingMines := 0
-			for _, delta := range adjacentDeltas {
-				newRow := i + delta.Row
-				newColumn := j + delta.Column
-				if newRow >= 0 && newRow < g.Height && newColumn >= 0 && newColumn < g.Width {
-					if g.grid[newRow][newColumn] == MineRune {
-						surroundingMines++
-					}
-				}
-			}
-			g.grid[i][j] = rune(int('0') + surroundingMines)
-		}
-	}
+	g.precomputeSurroundingMines()
 }
 
 // makeUserGrid propogates the grid which the user sees with the rune representing an unseen cell.
@@ -106,6 +94,30 @@ func (g *game) makeUserGrid() {
 		g.userGrid[i] = make(GridRow, g.Width)
 		for j := 0; j < g.Width; j++ {
 			g.userGrid[i][j] = UncheckedRuneUser
+		}
+	}
+}
+
+// precomputeSurroundingMines precomputes the amount of surrounding mines for every cell that does
+// not contain a mine. This can be expressed as a single rune because the maximum amount of mines
+// surrounding a cell is nine, which is expressed as `rune('9')`.
+func (g *game) precomputeSurroundingMines() {
+	for i := 0; i < g.Height; i++ {
+		for j := 0; j < g.Width; j++ {
+			if g.grid[i][j] != EmptyRune {
+				continue
+			}
+			surroundingMines := 0
+			for _, delta := range adjacentDeltas {
+				newRow := i + delta.Row
+				newColumn := j + delta.Column
+				if g.inGrid(newRow, newColumn) {
+					if g.grid[newRow][newColumn] == MineRune {
+						surroundingMines++
+					}
+				}
+			}
+			g.grid[i][j] = rune(int('0') + surroundingMines)
 		}
 	}
 }
