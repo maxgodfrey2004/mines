@@ -22,6 +22,9 @@ import (
 const (
 	bgColorDefault = termbox.ColorDefault
 	fgColorDefault = termbox.ColorBlue
+
+	fgColorMine = termbox.ColorRed
+	bgColorMine = bgColorDefault
 )
 
 // renderString draws a specified string on the terminal, starting at a given x and y coordinate.
@@ -50,6 +53,10 @@ func (g *game) Render() {
 		for j := 0; j < g.Width; j++ {
 			fgColor := fgColorDefault
 			bgColor := bgColorDefault
+			if g.userGrid[i][j] == MineRune {
+				fgColor = fgColorMine
+				bgColor = bgColorMine
+			}
 			if i == g.selectedIndex.Row && j == g.selectedIndex.Column {
 				// Invert the cell's colors to indicate to the user that the current
 				// cell has been selected.

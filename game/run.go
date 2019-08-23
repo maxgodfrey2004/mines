@@ -106,6 +106,12 @@ func (g *game) moveCursor(rowDelta, columnDelta int) {
 	}
 }
 
+func (g *game) selectAllMines() {
+	for _, minePos := range g.mines {
+		g.showCell(minePos.Row, minePos.Column)
+	}
+}
+
 // selectCell selects a given row and column of the grid. It then reveals all surrounding cells
 // according to the rules of the game. If the current cell is a mine, it is game over!
 func (g *game) selectCell(row, column int) {
@@ -114,7 +120,8 @@ func (g *game) selectCell(row, column int) {
 		g.selectFlood(row, column)
 	}
 	if g.grid[row][column] == MineRune {
-		g.showCell(row, column)
+		g.selectAllMines()
+		g.GameOver = true
 	}
 	if int(g.grid[row][column]) >= int('1') && int(g.grid[row][column]) <= int('9') {
 		g.showCell(row, column)
@@ -187,8 +194,10 @@ func (g *game) Run() {
 				termbox.Close()
 				return
 			case Select:
-				g.selectCell(g.selectedIndex.Row, g.selectedIndex.Column)
-				g.Render()
+				if !g.GameOver {
+					g.selectCell(g.selectedIndex.Row, g.selectedIndex.Column)
+					g.Render()
+				}
 			}
 		}
 	}
