@@ -30,6 +30,8 @@ const (
 	MoveLeft
 	// MoveRight represents a movement of the cursor to the right.
 	MoveRight
+	// Select represents the selection of a cell on the game board.
+	Select
 
 	// Quit represents a quitting of the application.
 	Quit
@@ -64,6 +66,8 @@ func (g *game) listenForEvents() {
 				g.keypressChan <- keypress{EventType: MoveLeft, Key: ev.Key}
 			case termbox.KeyArrowRight:
 				g.keypressChan <- keypress{EventType: MoveRight, Key: ev.Key}
+			case termbox.KeyEnter:
+				g.keypressChan <- keypress{EventType: Select, Key: ev.Key}
 			default:
 				switch ev.Ch {
 				case rune('Q'), rune('q'):
@@ -102,6 +106,71 @@ func (g *game) moveCursor(rowDelta, columnDelta int) {
 	}
 }
 
+func (g *game) selectAllMines() {
+	for _, minePos := range g.mines {
+		g.showCell(minePos.Row, minePos.Column)
+	}
+}
+
+// selectCell selects a given row and column of the grid. It then reveals all surrounding cells
+// according to the rules of the game. If the current cell is a mine, it is game over!
+func (g *game) selectCell(row, column int) {
+	if g.GameOver {
+		return
+	}
+	if g.grid[row][column] == rune('0') {
+		g.showCell(row, column)
+		g.selectFlood(row, column)
+	}
+	if g.grid[row][column] == MineRune {
+		g.selectAllMines()
+		g.GameOver = true
+	}
+	if int(g.grid[row][column]) >= int('1') && int(g.grid[row][column]) <= int('9') {
+		g.showCell(row, column)
+	}
+	g.Render()
+}
+
+// selectFlood selects every cell surrounding an empty cell. This function is designed to be called
+// when a grid cell with no surrounding mines is selected.
+func (g *game) selectFlood(row, column int) {
+	selectionQueue := make([]point, 1)
+	selectionQueue[0] = point{Row: row, Column: column}
+
+	for len(selectionQueue) > 0 {
+		currentPoint := selectionQueue[0]
+		selectionQueue = selectionQueue[1:]
+
+		for _, deltaPoint := range adjacentDeltas {
+			newPoint := point{
+				Row:    currentPoint.Row + deltaPoint.Row,
+				Column: currentPoint.Column + deltaPoint.Column,
+			}
+			if g.inGrid(newPoint.Row, newPoint.Column) {
+				if g.userGrid[newPoint.Row][newPoint.Column] == UncheckedRuneUser {
+					if g.grid[newPoint.Row][newPoint.Column] != MineRune {
+						g.showCell(newPoint.Row, newPoint.Column)
+						if g.userGrid[newPoint.Row][newPoint.Column] == EmptyRuneUser {
+							selectionQueue = append(selectionQueue, newPoint)
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// showCell displays a previously unchecked cell on the grid which the user sees.
+func (g *game) showCell(row, column int) {
+	switch g.grid[row][column] {
+	case rune('0'):
+		g.userGrid[row][column] = EmptyRuneUser
+	default:
+		g.userGrid[row][column] = g.grid[row][column]
+	}
+}
+
 // Run starts the game.
 func (g *game) Run() {
 	if err := termbox.Init(); err != nil {
@@ -128,6 +197,8 @@ func (g *game) Run() {
 			case Quit:
 				termbox.Close()
 				return
+			case Select:
+				g.selectCell(g.selectedIndex.Row, g.selectedIndex.Column)
 			}
 		}
 	}
