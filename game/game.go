@@ -25,9 +25,14 @@ const (
 	ChanceOfMine = 20
 
 	// MineRune represents a mine cell in char form.
-	MineRune = 'M'
+	MineRune rune = 'M'
 	// EmptyRune represents an empty cell in char form.
-	EmptyRune = 'E'
+	EmptyRune rune = 'E'
+
+	// EmptyRuneUser is the rune a user sees if they have checked a cell, but it contains nothing.
+	EmptyRuneUser rune = '#'
+	// UncheckedRuneUser is the rune a user sees if they have an unchecked cell.
+	UncheckedRuneUser rune = '.'
 )
 
 // GridRow represents a row of the minesweeper grid.
@@ -94,9 +99,23 @@ func makeGrid(width, height int) GridType {
 	return grid
 }
 
+// makeUserGrid returns a blank GridType object full of runes representing an unchecked cell.
+func makeUserGrid(width, height int) GridType {
+	grid := make(GridType, height)
+	for i := 0; i < height; i++ {
+		grid[i] = make(GridRow, width)
+		for j := 0; j < width; j++ {
+			grid[i][j] = UncheckedRuneUser
+		}
+	}
+
+	return grid
+}
+
 // Game represents an instance of the Minesweeper game.
 type game struct {
-	grid          GridType      // The board on which the game is being played.
+	grid          GridType      // The board on which the game is being played. The user does not see this board.
+	userGrid      GridType      // The grid which the user sees when they play the game.
 	selectedIndex point         // The current selected point in the grid.
 	keypressChan  chan keypress // Incoming keyboard events for individual processing.
 	Width         int           // The width of the game board.
@@ -106,6 +125,7 @@ type game struct {
 // New returns a new instance of the type game.
 func New(width, height int) (g game) {
 	g.grid = makeGrid(width, height)
+	g.userGrid = makeUserGrid(width, height)
 	g.Width = width
 	g.Height = height
 	return

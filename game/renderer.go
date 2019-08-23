@@ -20,8 +20,8 @@ import (
 
 // Various color constants to make rendering easier.
 const (
-	bgColorDefault = termbox.ColorBlack
-	fgColorDefault = termbox.ColorWhite
+	bgColorDefault = termbox.ColorDefault
+	fgColorDefault = termbox.ColorBlue
 )
 
 // renderString draws a specified string on the terminal, starting at a given x and y coordinate.
@@ -55,7 +55,7 @@ func (g *game) Render() {
 				// cell has been selected.
 				fgColor, bgColor = bgColor, fgColor
 			}
-			termbox.SetCell(j, i, g.grid[i][j], fgColor, bgColor)
+			termbox.SetCell(j, i, g.userGrid[i][j], fgColor, bgColor)
 		}
 	}
 
