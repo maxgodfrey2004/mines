@@ -32,6 +32,8 @@ const (
 	MoveRight
 	// Select represents the selection of a cell on the game board.
 	Select
+	// Flag represents the flagging of a grid cell
+	Flag
 
 	// Quit represents a quitting of the application.
 	Quit
@@ -80,6 +82,8 @@ func (g *game) listenForEvents() {
 					g.keypressChan <- keypress{EventType: MoveLeft, Key: ev.Key}
 				case rune('D'), rune('d'):
 					g.keypressChan <- keypress{EventType: MoveRight, Key: ev.Key}
+				case rune('F'), rune('f'):
+					g.keypressChan <- keypress{EventType: Flag, Key: ev.Key}
 				}
 			}
 		case termbox.EventError:
@@ -106,6 +110,23 @@ func (g *game) moveCursor(rowDelta, columnDelta int) {
 	}
 }
 
+// flagCell places a flag on a given cell of the user's grid. Note that if the chosen cell is
+// already flagged, then the flag is removed from that cell.
+func (g *game) flagCell(row, column int) {
+	if g.GameOver {
+		return
+	}
+	if g.userGrid[row][column] == UncheckedRuneUser && g.flaggedCells < g.maxFlags {
+		g.userGrid[row][column] = FlaggedRuneUser
+		g.flaggedCells++
+	} else if g.userGrid[row][column] == FlaggedRuneUser {
+		g.userGrid[row][column] = UncheckedRuneUser
+		g.flaggedCells--
+	}
+	g.Render()
+}
+
+// selectAllMines reveals the positions of all mines on the game board.
 func (g *game) selectAllMines() {
 	for _, minePos := range g.mines {
 		g.showCell(minePos.Row, minePos.Column)
@@ -115,7 +136,7 @@ func (g *game) selectAllMines() {
 // selectCell selects a given row and column of the grid. It then reveals all surrounding cells
 // according to the rules of the game. If the current cell is a mine, it is game over!
 func (g *game) selectCell(row, column int) {
-	if g.GameOver {
+	if g.GameOver || g.grid[row][column] == FlaggedRuneUser {
 		return
 	}
 	if g.grid[row][column] == rune('0') {
@@ -199,6 +220,8 @@ func (g *game) Run() {
 				return
 			case Select:
 				g.selectCell(g.selectedIndex.Row, g.selectedIndex.Column)
+			case Flag:
+				g.flagCell(g.selectedIndex.Row, g.selectedIndex.Column)
 			}
 		}
 	}

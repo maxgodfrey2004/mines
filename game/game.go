@@ -31,6 +31,8 @@ const (
 
 	// EmptyRuneUser is the rune a user sees if they have checked a cell, but it contains nothing.
 	EmptyRuneUser rune = '#'
+	// FlaggedRuneUser is the rune a user sees when they have flagged a cell they believe contains a mine.
+	FlaggedRuneUser rune = 'F'
 	// UncheckedRuneUser is the rune a user sees if they have an unchecked cell.
 	UncheckedRuneUser rune = '.'
 )
@@ -54,6 +56,20 @@ var (
 	}
 )
 
+// game represents an instance of the Minesweeper game.
+type game struct {
+	flaggedCells  int           // The number of cells which the user has flagged.
+	maxFlags      int           // The maximum number of cells which the user can place flags on.
+	grid          GridType      // The board on which the game is being played. The user does not see this board.
+	userGrid      GridType      // The grid which the user sees when they play the game.
+	selectedIndex point         // The current selected point in the grid.
+	mines         []point       // The locations of mines on the grid.
+	keypressChan  chan keypress // Incoming keyboard events for individual processing.
+	GameOver      bool          // Represents whether or not the user has lost the game.
+	Width         int           // The width of the game board.
+	Height        int           // The height of the game board.
+}
+
 // inGrid returns whether or not a given location is within the game grid.
 func (g *game) inGrid(row, column int) bool {
 	return row >= 0 && row < g.Height && column >= 0 && column < g.Width
@@ -72,9 +88,9 @@ func (g *game) makeGrid() {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 	occupiedCells := 0
-	var requiredCells int = (g.Width * g.Height) / (100 / ChanceOfMine)
+	g.maxFlags = (g.Width * g.Height) / (100 / ChanceOfMine)
 
-	for occupiedCells < requiredCells {
+	for occupiedCells < g.maxFlags {
 		randRow := rand.Intn(g.Height)
 		randColumn := rand.Intn(g.Width)
 		if g.grid[randRow][randColumn] == EmptyRune {
@@ -122,20 +138,9 @@ func (g *game) precomputeSurroundingMines() {
 	}
 }
 
-// Game represents an instance of the Minesweeper game.
-type game struct {
-	grid          GridType      // The board on which the game is being played. The user does not see this board.
-	userGrid      GridType      // The grid which the user sees when they play the game.
-	selectedIndex point         // The current selected point in the grid.
-	mines         []point       // The locations of mines on the grid.
-	keypressChan  chan keypress // Incoming keyboard events for individual processing.
-	GameOver      bool          // Represents whether or not the user has lost the game.
-	Width         int           // The width of the game board.
-	Height        int           // The height of the game board.
-}
-
 // New returns a new instance of the type game.
 func New(width, height int) (g game) {
+	g.flaggedCells = 0
 	g.Width = width
 	g.Height = height
 	g.makeGrid()
