@@ -23,6 +23,9 @@ const (
 	bgColorDefault = termbox.ColorDefault
 	fgColorDefault = termbox.ColorBlue
 
+	fgColorFlag = termbox.ColorYellow
+	bgColorFlag = bgColorDefault
+
 	fgColorMine = termbox.ColorRed
 	bgColorMine = bgColorDefault
 )
@@ -33,6 +36,17 @@ func renderString(x, y int, str []rune) {
 	for i := 0; i < len(str); i++ {
 		termbox.SetCell(x+i, y, str[i], fgColorDefault, bgColorDefault)
 	}
+}
+
+// resolveColors returns the preset foreground and background colors for a given rune.
+func resolveColors(gridCell rune) (fgColor, bgColor termbox.Attribute) {
+	switch gridCell {
+	case MineRune:
+		return fgColorMine, bgColorMine
+	case FlaggedRuneUser:
+		return fgColorFlag, bgColorFlag
+	}
+	return fgColorDefault, bgColorDefault
 }
 
 // Render draws the game's grid on the terminal screen.
@@ -51,12 +65,7 @@ func (g *game) Render() {
 
 	for i := 0; i < g.Height; i++ {
 		for j := 0; j < g.Width; j++ {
-			fgColor := fgColorDefault
-			bgColor := bgColorDefault
-			if g.userGrid[i][j] == MineRune {
-				fgColor = fgColorMine
-				bgColor = bgColorMine
-			}
+			fgColor, bgColor := resolveColors(g.userGrid[i][j])
 			if i == g.selectedIndex.Row && j == g.selectedIndex.Column {
 				// Invert the cell's colors to indicate to the user that the current
 				// cell has been selected.
