@@ -59,7 +59,7 @@ func (g *game) inGrid(row, column int) bool {
 	return row >= 0 && row < g.Height && column >= 0 && column < g.Width
 }
 
-// makeGrid propogates the game grid with mines, and precomputes the amount of surrounding mines
+// makeGrid propagates the game grid with mines, and precomputes the amount of surrounding mines
 // for every cell that does not contain a mine.
 func (g *game) makeGrid() {
 	g.grid = make(GridType, g.Height)
@@ -87,7 +87,7 @@ func (g *game) makeGrid() {
 	g.precomputeSurroundingMines()
 }
 
-// makeUserGrid propogates the grid which the user sees with the rune representing an unseen cell.
+// makeUserGrid propagates the grid which the user sees with the rune representing an unseen cell.
 func (g *game) makeUserGrid() {
 	g.userGrid = make(GridType, g.Height)
 	for i := 0; i < g.Height; i++ {
