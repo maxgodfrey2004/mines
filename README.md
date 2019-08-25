@@ -17,10 +17,6 @@ A terminal-based implementation of Minesweeper in Go.
     - [Game modes](#Game-modes)
 4. [License](#License)
 
-This project is licensed under the Apache-2](#License
-
-This project is licensed under the Apache-2)
-
 ## Building and Installing
 
 ### Installing
