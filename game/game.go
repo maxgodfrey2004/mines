@@ -20,10 +20,6 @@ import (
 )
 
 const (
-	// ChanceOfMine represents the chance (as a percentage) that any given grid cell will
-	// contain a mine. Note that this value is approximate.
-	ChanceOfMine = 10
-
 	// MineRune represents a mine cell in char form.
 	MineRune rune = 'M'
 	// EmptyRune represents an empty cell in char form.
@@ -66,6 +62,7 @@ type game struct {
 	grid          GridType      // The board on which the game is being played. The user does not see this board.
 	userGrid      GridType      // The grid which the user sees when they play the game.
 	selectedIndex point         // The current selected point in the grid.
+	numMines      int           // The amount of mines to be placed on the grid.
 	mines         []point       // The locations of mines on the grid.
 	keypressChan  chan keypress // Incoming keyboard events for individual processing.
 	GameOver      bool          // Represents whether or not the user has lost the game.
@@ -91,7 +88,7 @@ func (g *game) makeGrid() {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 	occupiedCells := 0
-	g.maxFlags = (g.Width * g.Height) / (100 / ChanceOfMine)
+	g.maxFlags = g.numMines
 
 	for occupiedCells < g.maxFlags {
 		randRow := rand.Intn(g.Height)
@@ -142,9 +139,10 @@ func (g *game) precomputeSurroundingMines() {
 }
 
 // New returns a new instance of the type game.
-func New(width, height int) (g game) {
+func New(width, height, numMines int) (g game) {
 	g.flaggedCells = 0
 	g.shownCells = 0
+	g.numMines = numMines
 	g.Width = width
 	g.Height = height
 	g.makeGrid()

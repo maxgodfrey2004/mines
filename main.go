@@ -15,10 +15,57 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"os"
+
 	"github.com/maxgodfrey2004/mines/game"
 )
 
+const (
+	DifficultyDefault = "medium"
+	DifficultyDesc    = "The difficulty of the game [\"easy\"|\"medium\"|\"hard\"]"
+)
+
+var (
+	gameDifficulty string
+	gameWidth      int
+	gameHeight     int
+	gameNumMines   int
+)
+
+// flagInit initialises all command line flags.
+func flagInit() {
+	flag.StringVar(&gameDifficulty, "difficulty", DifficultyDefault, DifficultyDesc)
+	flag.Parse()
+}
+
+// checkFlags ensures that all command line flags fit their desired constraints.
+func checkFlags() {
+	switch gameDifficulty {
+	case "easy":
+		gameWidth = 8
+		gameHeight = 8
+		gameNumMines = 10
+	case "medium":
+		gameWidth = 16
+		gameHeight = 16
+		gameNumMines = 40
+	case "hard":
+		gameWidth = 30
+		gameHeight = 16
+		gameNumMines = 99
+	default:
+		fmt.Fprintln(os.Stderr, "game difficulty must be [\"easy\"|\"medium\"|\"hard\"]")
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+}
+
 func main() {
-	minesweeper := game.New(10, 7)
+	flagInit()
+	checkFlags()
+
+	minesweeper := game.New(gameWidth, gameHeight, gameNumMines)
 	minesweeper.Run()
 }
