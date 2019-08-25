@@ -28,6 +28,9 @@ const (
 
 	fgColorMine = termbox.ColorRed
 	bgColorMine = bgColorDefault
+
+	fgColorGameWon = termbox.ColorGreen
+	bgColorGameWon = bgColorDefault
 )
 
 // renderString draws a specified string on the terminal, starting at a given x and y coordinate.
@@ -45,6 +48,8 @@ func resolveColors(gridCell rune) (fgColor, bgColor termbox.Attribute) {
 		return fgColorMine, bgColorMine
 	case FlaggedRuneUser:
 		return fgColorFlag, bgColorFlag
+	case GameWonRuneUser:
+		return fgColorGameWon, bgColorGameWon
 	}
 	return fgColorDefault, bgColorDefault
 }
