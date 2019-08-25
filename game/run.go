@@ -124,6 +124,7 @@ func (g *game) flagCell(row, column int) {
 		g.flaggedCells--
 	}
 	g.Render()
+	g.finishGameIfWon()
 }
 
 // selectAllMines reveals the positions of all mines on the game board.
@@ -136,7 +137,7 @@ func (g *game) selectAllMines() {
 // selectCell selects a given row and column of the grid. It then reveals all surrounding cells
 // according to the rules of the game. If the current cell is a mine, it is game over!
 func (g *game) selectCell(row, column int) {
-	if g.GameOver || g.grid[row][column] == FlaggedRuneUser {
+	if g.GameOver || g.userGrid[row][column] == FlaggedRuneUser {
 		return
 	}
 	if g.grid[row][column] == rune('0') {
@@ -144,8 +145,8 @@ func (g *game) selectCell(row, column int) {
 		g.selectFlood(row, column)
 	}
 	if g.grid[row][column] == MineRune {
-		g.selectAllMines()
 		g.GameOver = true
+		g.selectAllMines()
 	}
 	if int(g.grid[row][column]) >= int('1') && int(g.grid[row][column]) <= int('9') {
 		g.showCell(row, column)
@@ -189,6 +190,23 @@ func (g *game) showCell(row, column int) {
 		g.userGrid[row][column] = EmptyRuneUser
 	default:
 		g.userGrid[row][column] = g.grid[row][column]
+	}
+	g.shownCells++
+
+	g.finishGameIfWon()
+}
+
+// finishGameIfWon makes the grid fully green to indicate success if the user has filled it in and
+// flagged every mine correctly.
+func (g *game) finishGameIfWon() {
+	if g.shownCells + g.flaggedCells == g.Width * g.Height && !g.GameOver {
+		g.GameOver = true
+		for i := 0; i < g.Height; i++ {
+			for j := 0; j < g.Width; j++ {
+				g.userGrid[i][j] = GameWonRuneUser
+			}
+		}
+		g.Render()
 	}
 }
 

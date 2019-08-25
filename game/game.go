@@ -22,7 +22,7 @@ import (
 const (
 	// ChanceOfMine represents the chance (as a percentage) that any given grid cell will
 	// contain a mine. Note that this value is approximate.
-	ChanceOfMine = 20
+	ChanceOfMine = 10
 
 	// MineRune represents a mine cell in char form.
 	MineRune rune = 'M'
@@ -31,6 +31,8 @@ const (
 
 	// EmptyRuneUser is the rune a user sees if they have checked a cell, but it contains nothing.
 	EmptyRuneUser rune = '#'
+	// GameWonRuneUser is the rune displayed on every grid cell when/if the user wins the game.
+	GameWonRuneUser rune = '*'
 	// FlaggedRuneUser is the rune a user sees when they have flagged a cell they believe contains a mine.
 	FlaggedRuneUser rune = 'F'
 	// UncheckedRuneUser is the rune a user sees if they have an unchecked cell.
@@ -59,6 +61,7 @@ var (
 // game represents an instance of the Minesweeper game.
 type game struct {
 	flaggedCells  int           // The number of cells which the user has flagged.
+	shownCells    int           // The number of cells which have been shown to the user.
 	maxFlags      int           // The maximum number of cells which the user can place flags on.
 	grid          GridType      // The board on which the game is being played. The user does not see this board.
 	userGrid      GridType      // The grid which the user sees when they play the game.
@@ -141,6 +144,7 @@ func (g *game) precomputeSurroundingMines() {
 // New returns a new instance of the type game.
 func New(width, height int) (g game) {
 	g.flaggedCells = 0
+	g.shownCells = 0
 	g.Width = width
 	g.Height = height
 	g.makeGrid()
