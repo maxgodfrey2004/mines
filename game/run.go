@@ -199,7 +199,7 @@ func (g *game) showCell(row, column int) {
 // finishGameIfWon makes the grid fully green to indicate success if the user has filled it in and
 // flagged every mine correctly.
 func (g *game) finishGameIfWon() {
-	if g.shownCells + g.flaggedCells == g.Width * g.Height && !g.GameOver {
+	if g.shownCells+g.flaggedCells == g.Width*g.Height && !g.GameOver {
 		g.GameOver = true
 		for i := 0; i < g.Height; i++ {
 			for j := 0; j < g.Width; j++ {
