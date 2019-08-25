@@ -34,12 +34,13 @@ var (
 	gameNumMines   int
 )
 
-// flagInit initialises all command line flags
+// flagInit initialises all command line flags.
 func flagInit() {
 	flag.StringVar(&gameDifficulty, "difficulty", DifficultyDefault, DifficultyDesc)
 	flag.Parse()
 }
 
+// checkFlags ensures that all command line flags fit their desired constraints.
 func checkFlags() {
 	switch gameDifficulty {
 	case "easy":
