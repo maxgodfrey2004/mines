@@ -107,29 +107,11 @@ The difficulty of each game can be set through command line flags when the appli
 
 The specifications for each game mode are as follows:
 
-- Easy
-
-  |            |             |
-  |------------|-------------|
-  | Width      | 8 cells     |
-  | Height     | 8 cells     |
-  | Mines      | 10          |
-
-- Medium
-
-  |            |             |
-  |------------|-------------|
-  | Width      | 16 cells    |
-  | Height     | 16 cells    |
-  | Mines      | 40          |
-
-- Hard
-
-  |            |             |
-  |------------|-------------|
-  | Width      | 30 cells    |
-  | Height     | 16 cells    |
-  | Mines      | 99          |
+|           | Grid Width    | Grid Height   | Mines      |
+|-----------|---------------|---------------|------------|
+| Easy      | 8 cells       | 8 cells       | 10         |
+| Medium    | 16 cells      | 16 cells      | 40         |
+| Hard      | 30 cells      | 16 cells      | 99         |             
 
 ## License
 
