@@ -137,6 +137,9 @@ func (g *game) selectAllMines() {
 // selectCell selects a given row and column of the grid. It then reveals all surrounding cells
 // according to the rules of the game. If the current cell is a mine, it is game over!
 func (g *game) selectCell(row, column int) {
+	if g.firstMove {
+		g.handleFirstMove(row, column)
+	}
 	if g.GameOver || g.userGrid[row][column] == FlaggedRuneUser {
 		return
 	}
