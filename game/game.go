@@ -24,6 +24,8 @@ const (
 	MineRune rune = 'M'
 	// EmptyRune represents an empty cell in char form.
 	EmptyRune rune = 'E'
+	// UntouchableRune represents a cell to be ignored during grid construction.
+	UntouchableRune = 'U'
 
 	// EmptyRuneUser is the rune a user sees if they have checked a cell, but it contains nothing.
 	EmptyRuneUser rune = '#'
@@ -56,6 +58,7 @@ var (
 
 // game represents an instance of the Minesweeper game.
 type game struct {
+	firstMove     bool          // Represents whether or not a given turn is the first move of the game.
 	flaggedCells  int           // The number of cells which the user has flagged.
 	shownCells    int           // The number of cells which have been shown to the user.
 	maxFlags      int           // The maximum number of cells which the user can place flags on.
@@ -78,14 +81,6 @@ func (g *game) inGrid(row, column int) bool {
 // makeGrid propagates the game grid with mines, and precomputes the amount of surrounding mines
 // for every cell that does not contain a mine.
 func (g *game) makeGrid() {
-	g.grid = make(GridType, g.Height)
-	for i := 0; i < g.Height; i++ {
-		g.grid[i] = make(GridRow, g.Width)
-		for j := 0; j < g.Width; j++ {
-			g.grid[i][j] = EmptyRune
-		}
-	}
-
 	rand.Seed(time.Now().UTC().UnixNano())
 	occupiedCells := 0
 	g.maxFlags = g.numMines
@@ -100,16 +95,49 @@ func (g *game) makeGrid() {
 		}
 	}
 
+	g.removeUntouchableRunes()
 	g.precomputeSurroundingMines()
 }
 
-// makeUserGrid propagates the grid which the user sees with the rune representing an unseen cell.
-func (g *game) makeUserGrid() {
+// initGrids creates the two grids in which the game state is stored.
+func (g *game) initGrids() {
 	g.userGrid = make(GridType, g.Height)
 	for i := 0; i < g.Height; i++ {
 		g.userGrid[i] = make(GridRow, g.Width)
 		for j := 0; j < g.Width; j++ {
 			g.userGrid[i][j] = UncheckedRuneUser
+		}
+	}
+	g.grid = make(GridType, g.Height)
+	for i := 0; i < g.Height; i++ {
+		g.grid[i] = make(GridRow, g.Width)
+		for j := 0; j < g.Width; j++ {
+			g.grid[i][j] = EmptyRune
+		}
+	}
+}
+
+// handleFirstMove ensures that the first move of the game does not result in the user losing.
+// It also invokes the routine responsible for propagating the grid.
+func (g *game) handleFirstMove(row, column int) {
+	g.grid[row][column] = UntouchableRune
+	for _, pt := range adjacentDeltas {
+		if g.inGrid(row+pt.Row, column+pt.Column) {
+			g.grid[row+pt.Row][column+pt.Column] = UntouchableRune
+		}
+	}
+	g.firstMove = false
+	g.makeGrid()
+}
+
+// removeUntouchableRunes replaces all cells on the grid whose value is equal to UntouchableRune
+// with the EmptyRune constant.
+func (g *game) removeUntouchableRunes() {
+	for i := 0; i < g.Height; i++ {
+		for j := 0; j < g.Width; j++ {
+			if g.grid[i][j] == UntouchableRune {
+				g.grid[i][j] = EmptyRune
+			}
 		}
 	}
 }
@@ -140,12 +168,12 @@ func (g *game) precomputeSurroundingMines() {
 
 // New returns a new instance of the type game.
 func New(width, height, numMines int) (g game) {
+	g.firstMove = true
 	g.flaggedCells = 0
 	g.shownCells = 0
 	g.numMines = numMines
 	g.Width = width
 	g.Height = height
-	g.makeGrid()
-	g.makeUserGrid()
+	g.initGrids()
 	return
 }
