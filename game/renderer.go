@@ -65,6 +65,7 @@ func (g *game) Render() {
 	tWidth, tHeight := termbox.Size()
 	if g.Width > tWidth || g.Height > tHeight {
 		renderString(0, 0, []rune("Terminal is too small. Please resize."))
+		termbox.Flush()
 		return
 	}
 
