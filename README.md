@@ -1,4 +1,5 @@
 # mines [![Build Status](https://travis-ci.com/maxgodfrey2004/mines.svg?branch=master)](https://travis-ci.com/maxgodfrey2004/mines) [![Go Report Card](https://goreportcard.com/badge/github.com/maxgodfrey2004/mines)](https://goreportcard.com/report/github.com/maxgodfrey2004/mines)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmaxgodfrey2004%2Fmines.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmaxgodfrey2004%2Fmines?ref=badge_shield)
 A terminal-based implementation of Minesweeper in Go.
 
 ![mines_demo_better](https://user-images.githubusercontent.com/34620214/63650957-eb5e1c00-c782-11e9-94f3-6f5cff5550c0.png)
@@ -115,3 +116,6 @@ The specifications for each game mode are as follows:
 ## License
 
 This project is licensed under the Apache License 2.0. For more information, read the LICENCE file in the project's root directory. Alternatively, you can [read it on Github](https://github.com/maxgodfrey2004/mines/blob/master/LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmaxgodfrey2004%2Fmines.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmaxgodfrey2004%2Fmines?ref=badge_large)
